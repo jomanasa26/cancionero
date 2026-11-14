@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mis clásicos en inglés</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -139,8 +143,15 @@ td.listen .lk{margin-right:4px}
 #player .pbtn button,#player .pbtn a{font:inherit;font-size:15px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-decoration:none}
 #player .pbtn button:hover,#player .pbtn a:hover{background:var(--hover)}
 #player.mini .scr{display:none}
-@media (max-width:640px){#player{left:16px;right:16px;width:auto;bottom:12px}}
-body.playing{padding-bottom:300px}
+body.playing{padding-bottom:320px}
+#player{width:420px}
+@media (max-width:640px){
+  #player{top:0;bottom:auto;left:0;right:0;width:auto;max-width:none;border-radius:0 0 14px 14px;border-top:0;padding-top:env(safe-area-inset-top,0px)}
+  #player .pbar{padding:8px 12px}
+  #player .pbtn button,#player .pbtn a{width:38px;height:38px}
+  body.playing{padding-bottom:48px;padding-top:calc(56.25vw + 70px)}
+  body.playing.pmin{padding-top:70px}
+}
 footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px;display:grid;gap:6px}
 footer p{margin:0}
 </style>
@@ -321,7 +332,7 @@ function onVidErr(){const r=cur;if(!r)return;
   if(tryIx<(r.w||[]).length){tryIx++;try{yt.loadVideoById(vidOf(r));}catch(e){showErr(r);}}else showErr(r);}
 function playSong(r){
   if(!r||!r.v)return;cur=r;tryIx=0;queue=orderNow();
-  const P=$('player');P.hidden=false;P.classList.remove('mini');document.body.classList.add('playing');
+  const P=$('player');P.hidden=false;P.classList.remove('mini');document.body.classList.remove('pmin');document.body.classList.add('playing');
   $('pt').textContent=r.t;$('pa').textContent=`${r.a} · ${r.y}`;$('pyt').href=ytUrl(r);mark();
   if(apiReady&&window.YT&&YT.Player){
     if(yt&&yt.loadVideoById){yt.loadVideoById(vidOf(r));return;}
@@ -336,7 +347,7 @@ function step(d){if(!cur)return;const q=queue.length?queue:orderNow();let i=q.fi
   const n=q[(i+d+q.length)%q.length];if(n)playSong(n);}
 $('pnext').addEventListener('click',()=>step(1));
 $('pprev').addEventListener('click',()=>step(-1));
-$('pmin').addEventListener('click',()=>{$('player').classList.toggle('mini');});
+$('pmin').addEventListener('click',()=>{$('player').classList.toggle('mini');document.body.classList.toggle('pmin',$('player').classList.contains('mini'));});
 $('pclose').addEventListener('click',()=>{if(yt&&yt.stopVideo)try{yt.stopVideo();}catch(e){}
   $('scr').innerHTML='';yt=null;cur=null;$('player').hidden=true;document.body.classList.remove('playing');mark();});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-play]');if(b){e.stopPropagation();playSong(D.find(r=>r.o===+b.dataset.play));}},true);
