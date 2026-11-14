@@ -1,3 +1,7 @@
-# Mis clásicos en inglés de todos los tiempos
+# Mis cancioneros
 
-Cancionero con reproductor de YouTube integrado. Se ve en https://jomanasa26.github.io/cancionero/
+Cancioneros con reproductor de YouTube integrado. Se ven en https://jomanasa26.github.io/cancionero/
+
+- clasicos/ · Mis clásicos en inglés de todos los tiempos
+- niche/ · Grupo Niche
+- beatles/ · The Beatles
