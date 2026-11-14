@@ -1,7 +1,7 @@
 # Mis cancioneros
 
-Cancioneros con reproductor de YouTube integrado. Se ven en https://jomanasa26.github.io/cancionero/
+Cada cancionero tiene su propio enlace:
 
-- clasicos/ · Mis clásicos en inglés de todos los tiempos
-- niche/ · Grupo Niche
-- beatles/ · The Beatles
+- Mis clásicos en inglés: https://jomanasa26.github.io/cancionero/
+- Grupo Niche: https://jomanasa26.github.io/cancionero/niche/
+- The Beatles: https://jomanasa26.github.io/cancionero/beatles/
