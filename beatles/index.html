@@ -332,7 +332,8 @@ const urlOf=r=>{const s=srcOf(r);return s&&s.v?'https://www.youtube.com/watch?v=
 function orderNow(){return [...document.querySelectorAll('#tb [data-play]')].map(b=>+b.dataset.play).filter((v,i,a)=>a.indexOf(v)===i).map(o=>D.find(r=>r.o===o));}
 function mark(){document.querySelectorAll('#tb tr.now').forEach(c=>c.classList.remove('now'));if(cur){const c=$('s'+cur.o);if(c)c.classList.add('now');}}
 function showInfo(r){$('pt').textContent=r.t;$('pa').textContent=INFO(r);$('pyt').href=urlOf(r);mark();}
-function showErr(r){$('scr').innerHTML=`<div class="err"><span>Este video no se deja ver dentro del cancionero.</span><a href="${SEARCH(r)}" target="_blank" rel="noopener">Búscalo en YouTube ↗</a></div>`;yt=null;}
+function showErr(r){$('scr').innerHTML=`<div class="err"><span>Este video no se deja ver dentro del cancionero.</span><span style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center"><a href="#" id="pretry">Intentar de nuevo ↻</a><a href="${SEARCH(r)}" target="_blank" rel="noopener">Búscalo en YouTube ↗</a></span></div>`;yt=null;
+  $('pretry').onclick=e=>{e.preventDefault();if(cur)playSong(cur);};}
 function load(s){reached=false;if(s.list)yt.loadPlaylist({list:s.list,listType:'playlist',index:s.i});else yt.loadVideoById(s.v);}
 function onVidErr(){const r=cur;if(!r)return;
   if(tryIx<SRC(r).length-1){tryIx++;$('pyt').href=urlOf(r);try{load(srcOf(r));}catch(e){showErr(r);}}else showErr(r);}
