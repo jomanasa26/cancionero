@@ -164,7 +164,8 @@ td.listen .lk{margin-right:4px}
 #player .pbtn button:hover,#player .pbtn a:hover{background:var(--hover)}
 #player.mini .scr{display:none}
 /* súper mix */
-#player .mixs{position:absolute;inset:0}
+#player .mixs{position:absolute;inset:0;pointer-events:none}
+#player .mixs iframe{pointer-events:none}
 #player .mixs>*{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;visibility:hidden;z-index:0;transition:opacity .6s ease,visibility 0s .6s}
 #player .mixs>.on{opacity:1;visibility:visible;z-index:1;transition:opacity .6s ease,visibility 0s}
 #player .mixtag{position:absolute;left:8px;top:8px;z-index:2;background:rgba(0,0,0,.65);color:#fff;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;pointer-events:none;font-variant-numeric:tabular-nums}
@@ -541,7 +542,7 @@ function startMix(from){
   $('mixbtn').classList.add('on');$('mixlbl').textContent='⏹ Parar mix';
   BED.start();
   mx={i:from||0,act:1,p:[],st:[{},{}],tok:[0,0],tm:null,bar:null,ready:0,pend:null};
-  ['mxA','mxB'].forEach((id,k)=>{mx.p[k]=new YT.Player(id,{playerVars:{autoplay:0,rel:0,playsinline:1,controls:0},
+  ['mxA','mxB'].forEach((id,k)=>{mx.p[k]=new YT.Player(id,{playerVars:{autoplay:0,rel:0,playsinline:1,controls:0,disablekb:1,fs:0,iv_load_policy:3,modestbranding:1},
     events:{onReady:()=>{if(!mx)return;mx.ready++;if(mx.ready===2)mixGo(mx.i,false,true);},
       onStateChange:e=>{if(mx&&e.data===1&&mx.st[k]&&mx.tok[k])mixStarted(k);if(mx&&e.data===0&&mx.act===k&&mx.pend==null)mixGo(mx.i+1,false,true);},
       onError:()=>mixErr(k)}});});
