@@ -418,11 +418,32 @@ const BED={ac:null,crk:null,crG:null,bG:null,bpm:88,sty:0,nx:0,stp:0,tk:null,
     const n=ac.createBufferSource();n.buffer=this.nb;const f=ac.createBiquadFilter();
     let dur=0.05;
     if(kind==='h'){f.type='highpass';f.frequency.value=7000;dur=0.04;}
+    else if(kind==='sh'){f.type='bandpass';f.frequency.value=6200;f.Q.value=1.2;dur=0.05;}
+    else if(kind==='tb'){f.type='highpass';f.frequency.value=8500;dur=0.14;}
     else if(kind==='o'){f.type='highpass';f.frequency.value=6500;dur=0.22;}
     else if(kind==='b'){f.type='bandpass';f.frequency.value=3500;f.Q.value=0.7;dur=0.16;}   // escobilla
     else {f.type='bandpass';f.frequency.value=this.sty===2?1500:1900;f.Q.value=0.9;dur=this.sty===2?0.22:0.13;}  // caja / palmas
     g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);n.connect(f).connect(g);n.start(t,Math.random()*1.5);n.stop(t+dur+0.02);},
-  pat(s,t){const S=this.sty,q=s%16;
+  tone(t,f0,f1,dur,v,type){const ac=this.ac,o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';
+    o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.connect(g).connect(this.bG);o.start(t);o.stop(t+dur+0.02);},
+  cow(t,v){const ac=this.ac,f=ac.createBiquadFilter(),g=ac.createGain();f.type='bandpass';f.frequency.value=800;f.Q.value=3;
+    [540,800].forEach(fr=>{const o=ac.createOscillator();o.type='square';o.frequency.value=fr;o.connect(f);o.start(t);o.stop(t+0.15);});
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.14);f.connect(g).connect(this.bG);},
+  /* capa alegre encima de la batería: shaker, pandereta, congas, cencerro y redobles cada 4 compases */
+  extra(s,t){const S=this.sty,q=s%16,bar=Math.floor(s/16),B=bar%2,fill=bar%4===3&&q>=12;
+    if(fill){const f=[200,170,140,115][q-12];this.tone(t,f,f*0.6,0.18,0.35);if(q===15)this.hit(t,'o',0.12);return true;}
+    // shaker en semicorcheas, acento en el contratiempo
+    this.hit(t,'sh',q%4===2?0.07:0.035);
+    // pandereta en 2 y 4 (y en el "y" del 4 en compases B)
+    if(q===4||q===12||(B&&q===14))this.hit(t,'tb',0.08);
+    // congas: patrón tumbao que cambia cada compás
+    const cg=B?[3,6,10,11,14]:[3,7,10,14,15];
+    if(cg.includes(q))this.tone(t,q%2?330:250,q%2?300:215,0.13,0.16);
+    if(S===1&&q%4===2)this.cow(t,0.05);
+    if(S===2&&B&&(q===7||q===15))this.hit(t,'s',0.1);
+    return false;},
+  pat(s,t){const S=this.sty,q=s%16;if(this.extra(s,t)){if(q===12)this.hit(t,'k',0.5);return;}
     if(S===0){ // shuffle suave: bombo 1 y 3, escobilla en negras con swing, caja tenue en 2 y 4
       if(q===0||q===8)this.hit(t,'k',0.55);if(q%4===0)this.hit(t,'b',0.22);if(q%4===3)this.hit(t,'b',0.12);if(q===4||q===12)this.hit(t,'s',0.18);}
     else if(S===1){ // disco: bombo a negras, charles abierto a contratiempo
