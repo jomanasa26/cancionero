@@ -574,7 +574,7 @@ render();
 }
 </style>
 <script>
-/* ---- BETA: letra de la canción en una ventanita, sincronizada cuando la fuente trae tiempos (lrclib.net) ---- */
+/* ---- BETA: letra de la canción en una ventanita (lrclib.net), para leer al propio ritmo ---- */
 (function(){
 const pb=document.querySelector('#player .pbtn');const btn=document.createElement('button');btn.type='button';btn.id='lyrbtn';btn.title='Letra';btn.setAttribute('aria-label','Ver la letra');btn.textContent='📝';
 pb.insertBefore(btn,$('pmin'));
@@ -590,15 +590,15 @@ function links(r){const q=encodeURIComponent(artOf(r)+' '+clean(r.t));
 function parse(s){return s.split('\n').map(l=>{const m=l.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);return m?{t:+m[1]*60+ +m[2],x:m[3]}:null;}).filter(Boolean);}
 function show(r,d){const b=$('lyb');lines=null;b.classList.remove('plain');
   if(!d){b.innerHTML='<p class="msg">No encontré la letra de este tema. Prueba con los enlaces de abajo.</p>';return;}
-  if(d.syncedLyrics){lines=parse(d.syncedLyrics);b.innerHTML=lines.map((l,i)=>l.x?`<p data-i="${i}">${esc(l.x)}</p>`:'<div class="gap"></div>').join('');b.scrollTop=0;}
-  else if(d.plainLyrics){b.classList.add('plain');b.innerHTML=d.plainLyrics.split('\n').map(l=>l.trim()?`<p>${esc(l)}</p>`:'<div class="gap"></div>').join('');b.scrollTop=0;}
+  const txt=d.plainLyrics||(d.syncedLyrics?parse(d.syncedLyrics).map(l=>l.x).join('\n'):'');
+  if(txt){b.classList.add('plain');b.innerHTML=txt.split('\n').map(l=>l.trim()?`<p>${esc(l)}</p>`:'<div class="gap"></div>').join('');b.scrollTop=0;}
   else if(d.instrumental){b.innerHTML='<p class="msg">Tema instrumental 🎷</p>';}
   else b.innerHTML='<p class="msg">No encontré la letra de este tema.</p>';}
 async function find(r){const k=r.o;if(k in cache)return cache[k];
   const A=artOf(r),T=clean(r.t),u='https://lrclib.net/api/search?';let res=[];
   try{res=await (await fetch(u+new URLSearchParams({track_name:T,artist_name:A}))).json();
     if(!res.length)res=await (await fetch(u+new URLSearchParams({q:A+' '+T}))).json();}catch(e){return null;}
-  const best=res.find(x=>x.syncedLyrics)||res.find(x=>x.plainLyrics||x.instrumental)||null;cache[k]=best;return best;}
+  const best=res.find(x=>x.plainLyrics)||res.find(x=>x.syncedLyrics||x.instrumental)||null;cache[k]=best;return best;}
 async function load(){const r=cur;if(!open||!r)return;if(forO===r.o)return;forO=r.o;
   $('lyt').textContent=`${r.t} · ${r.a}`;links(r);$('lyb').innerHTML='<p class="msg">Buscando la letra…</p>';
   const d=await find(r);if(forO!==r.o)return;show(r,d);}
@@ -607,7 +607,7 @@ function follow(){if(!open||!lines)return;const t=now();if(t==null)return;let i=
   if(n){n.classList.add('on');b.scrollTo({top:n.offsetTop-b.clientHeight*0.35,behavior:'smooth'});}}
 function size(){const p=$('player');document.documentElement.style.setProperty('--ph',(p.hidden?0:p.offsetHeight)+'px');}
 function setOpen(v){open=v;box.hidden=!v;btn.classList.toggle('on',v);document.body.classList.toggle('lyron',v);clearInterval(tick);
-  if(v){size();forO=null;load();tick=setInterval(()=>{size();if(cur&&cur.o!==forO)load();follow();},300);}}
+  if(v){size();forO=null;load();tick=setInterval(()=>{size();if(cur&&cur.o!==forO)load();},500);}}
 btn.addEventListener('click',()=>setOpen(!open));
 $('lyx').addEventListener('click',()=>setOpen(false));
 $('pclose').addEventListener('click',()=>setOpen(false));
