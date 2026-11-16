@@ -499,7 +499,7 @@ function mixInfo(){if(!mx)return;const x=mixRow(mx.i);if(!x||!x.r)return;cur=x.r
   const el=$('s'+x.r.o);if(el&&!$('player').classList.contains('mini'))el.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function mixSlot(k,i,now){
   const x=mixRow(i);mx.pend=i;
-  const p=mx.p[k];mx.tok[k]=(mx.tok[k]||0)+1;const tok=mx.tok[k];mx.st[k]={i,s:x.s,started:false,alt:0,now:!!now};
+  const p=mx.p[k];mx.tok[k]=(mx.tok[k]||0)+1;const tok=mx.tok[k];mx.st[k]={i,s:x.s,started:false,alt:0,now:!!now,lt:Date.now()};
   try{p.setVolume(0);p.loadVideoById({videoId:x.r.v,startSeconds:x.s});}catch(e){mixGo(i+1);return;}
   // si no arranca en 7 s, saltar
   setTimeout(()=>{if(mx&&mx.tok[k]===tok&&!mx.st[k].started&&!mx.st[k].go)mixGo(i+1);},7000);
@@ -528,7 +528,7 @@ function mixGo(n,back,now){if(!mx)return;clearTimeout(mx.tm);if(n<0)n=0;
 function mixErr(k){if(!mx)return;const st=mx.st[k];if(!st)return;const x=mixRow(st.i);const alts=(x&&x.r&&x.r.w)||[];
   if(st.alt<alts.length){try{mx.p[k].loadVideoById({videoId:alts[st.alt++],startSeconds:st.s});return;}catch(e){}}
   mixGo(st.i+1);}
-function mixStop(){if(!mx)return;clearTimeout(mx.tm);clearInterval(mx.bar);mx.p.forEach(p=>{try{p.destroy();}catch(e){}});mx=null;BED.stop();
+function mixStop(){if(!mx)return;clearTimeout(mx.tm);clearInterval(mx.wd);clearInterval(mx.bar);mx.p.forEach(p=>{try{p.destroy();}catch(e){}});mx=null;BED.stop();
   $('mixbtn').classList.remove('on');$('mixlbl').textContent='Súper mix';const b=$('mixbar');if(b)b.remove();}
 function mixEnd(done){if(!mx)return;mixStop();
   if(done){$('scr').innerHTML=`<div class="err"><span>Fin del súper mix 🎉</span><a href="#" id="pretry">Volver a empezar ↻</a></div>`;$('pretry').onclick=e=>{e.preventDefault();startMix(0);};}
@@ -542,6 +542,12 @@ function startMix(from){
   $('mixbtn').classList.add('on');$('mixlbl').textContent='⏹ Parar mix';
   BED.start();
   mx={i:from||0,act:1,p:[],st:[{},{}],tok:[0,0],tm:null,bar:null,ready:0,pend:null};
+  // vigilante: pase lo que pase con YouTube, ningún tema suena más de 35 s
+  mx.wd=setInterval(()=>{if(!mx)return;const a=mx.act,sa=mx.st[a],k=1-a,si=mx.st[k];if(!sa||!sa.t0)return;
+    const el=(Date.now()-sa.t0)/1000,nx=si&&si.i!=null&&si.i!==sa.i&&!si.started;
+    if(nx&&si.go&&el>SEG-XF+1.5){try{mx.p[k].playVideo();}catch(e){}if(el>SEG-XF+3){si.now=true;si.go=false;mixStarted(k);return;}}
+    if(el>SEG+1.5&&!(nx&&(si.go||Date.now()-si.lt<6500)))mixGo(sa.i+1,false,true);
+    if(el>34.5&&sa.started){sa.started=false;try{mx.p[a].setVolume(0);mx.p[a].pauseVideo();}catch(e){}}},500);
   ['mxA','mxB'].forEach((id,k)=>{mx.p[k]=new YT.Player(id,{playerVars:{autoplay:0,rel:0,playsinline:1,controls:0,disablekb:1,fs:0,iv_load_policy:3,modestbranding:1},
     events:{onReady:()=>{if(!mx)return;mx.ready++;if(mx.ready===2)mixGo(mx.i,false,true);},
       onStateChange:e=>{if(mx&&e.data===1&&mx.st[k]&&mx.tok[k])mixStarted(k);if(mx&&e.data===0&&mx.act===k&&mx.pend==null)mixGo(mx.i+1,false,true);},
