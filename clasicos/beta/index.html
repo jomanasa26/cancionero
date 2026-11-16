@@ -609,6 +609,12 @@ function size(){const p=$('player');document.documentElement.style.setProperty('
 function setOpen(v){open=v;box.hidden=!v;btn.classList.toggle('on',v);document.body.classList.toggle('lyron',v);clearInterval(tick);
   if(v){size();forO=null;load();tick=setInterval(()=>{size();if(cur&&cur.o!==forO)load();},500);}}
 btn.addEventListener('click',()=>setOpen(!open));
+// se abre sola cada vez que empieza un tema (en el mix, si la cierras, queda cerrada hasta que termine el mix)
+let lastAuto=null,mixClosed=false;
+setInterval(()=>{if(!mx)mixClosed=false;if(!cur||$('player').hidden){lastAuto=null;return;}
+  if(cur.o!==lastAuto){lastAuto=cur.o;if(!open&&!(mx&&mixClosed))setOpen(true);}},400);
+$('lyx').addEventListener('click',()=>{if(mx)mixClosed=true;});
+btn.addEventListener('click',()=>{if(mx)mixClosed=!open;});
 $('lyx').addEventListener('click',()=>setOpen(false));
 $('pclose').addEventListener('click',()=>setOpen(false));
 })();
