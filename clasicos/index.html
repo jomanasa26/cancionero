@@ -381,10 +381,10 @@ function playSong(r){
   if(apiReady&&window.YT&&YT.Player){
     if(yt&&yt.loadVideoById){yt.loadVideoById(vidOf(r));return;}
     $('scr').innerHTML='<div id="ytp"></div>';
-    yt=new YT.Player('ytp',{host:'https://www.youtube.com.',videoId:vidOf(r),playerVars:{autoplay:1,rel:0,playsinline:1},
+    yt=new YT.Player('ytp',{videoId:vidOf(r),playerVars:{autoplay:1,rel:0,playsinline:1},
       events:{onStateChange:e=>{if(e.data===0)step(1);},onError:onVidErr}});
   } else {
-    yt=null;$('scr').innerHTML=`<iframe src="https://www.youtube.com./embed/${r.v}?autoplay=1&rel=0&playsinline=1" title="${esc(r.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    yt=null;$('scr').innerHTML=`<iframe src="https://www.youtube.com/embed/${r.v}?autoplay=1&rel=0&playsinline=1" title="${esc(r.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   }
 }
 function step(d){if(!cur)return;const q=queue.length?queue:orderNow();let i=q.findIndex(r=>r.o===cur.o);
