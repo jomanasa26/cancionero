@@ -165,8 +165,8 @@ td.listen .lk{margin-right:4px}
 #player.mini .scr{display:none}
 /* súper mix */
 #player .mixs{position:absolute;inset:0}
-#player .mixs>*{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .6s ease}
-#player .mixs>.on{opacity:1}
+#player .mixs>*{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;visibility:hidden;z-index:0;transition:opacity .6s ease,visibility 0s .6s}
+#player .mixs>.on{opacity:1;visibility:visible;z-index:1;transition:opacity .6s ease,visibility 0s}
 #player .mixtag{position:absolute;left:8px;top:8px;z-index:2;background:rgba(0,0,0,.65);color:#fff;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;pointer-events:none;font-variant-numeric:tabular-nums}
 #player .mixbar{height:3px;background:var(--line)}#player .mixbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
 #mixbtn{display:inline-flex;align-items:center;gap:9px;padding:4px 16px 4px 4px;border-radius:999px;font-weight:800;color:#fff;border:0;
