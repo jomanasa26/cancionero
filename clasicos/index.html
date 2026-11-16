@@ -267,7 +267,7 @@ const decs=[...new Set(D.map(r=>r.d))].sort();
 const arts=[...new Set(D.map(r=>r.a))].sort((x,y)=>sortName(x).localeCompare(sortName(y),'es'));
 const paises=[...new Set(D.map(r=>r.p))].sort((x,y)=>D.filter(r=>r.p===y).length-D.filter(r=>r.p===x).length);
 const q=r=>encodeURIComponent(r.a+' '+r.t);
-const ytUrl=r=>r.v?`https://www.youtube.com/watch?v=${r.v}`:`https://www.youtube.com/results?search_query=${q(r)}`;
+const ytUrl=r=>r.v?`https://www.youtube.com./watch?v=${r.v}`:`https://www.youtube.com./results?search_query=${q(r)}`;
 const links=r=>`<a class="lk yt" href="${ytUrl(r)}" target="_blank" rel="noopener">YouTube</a><a class="lk sp" href="https://open.spotify.com/search/${q(r)}" target="_blank" rel="noopener">Spotify</a>`;
 const ys=D.map(r=>r.y);
 $('range').textContent=`Selección personal · ${Math.min(...ys)} – ${Math.max(...ys)}`;
