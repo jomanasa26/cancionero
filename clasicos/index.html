@@ -370,21 +370,33 @@ function orderNow(){ // orden en que se ven los temas ahora mismo
   return [...document.querySelectorAll('[data-play]')].map(b=>+b.dataset.play).filter((v,i,a)=>a.indexOf(v)===i).map(o=>D.find(r=>r.o===o));}
 function mark(){document.querySelectorAll('.card.now').forEach(c=>c.classList.remove('now'));if(cur){const c=$('s'+cur.o);if(c)c.classList.add('now');}}
 function showErr(r){clearTimeout(errT);$('scr').innerHTML=`<div class="err"><span>Este video no se deja ver dentro del cancionero.</span><span style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center"><a href="#" id="pretry">Intentar de nuevo ↻</a><a href="${ytUrl(r)}" target="_blank" rel="noopener">Ábrelo en YouTube ↗</a></span></div>`;yt=null;
-  $('pretry').onclick=e=>{e.preventDefault();if(cur)playSong(cur);};}
+  $('pretry').onclick=e=>{e.preventDefault();hostIx=0;try{localStorage.removeItem('yt-host');}catch(_){}if(cur)playSong(cur);};}
 let tryIx=0;const vidOf=r=>tryIx===0?r.v:(r.w||[])[tryIx-1];
-function onVidErr(){const r=cur;if(!r)return;
-  if(tryIx<(r.w||[]).length){tryIx++;try{yt.loadVideoById(vidOf(r));}catch(e){showErr(r);}}else showErr(r);}
+/* dominios para el reproductor: primero youtube.com. (con punto); si YouTube lo rechaza (error 152/153 o no responde),
+   se pasa solo al siguiente y se recuerda el que funcionó */
+const HOSTS=['https://www.youtube.com.','https://www.youtube-nocookie.com','https://www.youtube.com'];
+let hostIx=0,readyT=null;try{const h=+localStorage.getItem('yt-host');if(h>=0&&h<HOSTS.length)hostIx=h;}catch(e){}
+function nextHost(){if(hostIx>=HOSTS.length-1)return false;hostIx++;try{localStorage.setItem('yt-host',hostIx);}catch(e){}
+  try{yt&&yt.destroy&&yt.destroy();}catch(e){}yt=null;if(cur)mkPlayer(cur);return true;}
+function mkPlayer(r){
+  $('scr').innerHTML='<div id="ytp"></div>';clearTimeout(readyT);
+  yt=new YT.Player('ytp',{host:HOSTS[hostIx],videoId:vidOf(r),
+    playerVars:{autoplay:1,rel:0,playsinline:1,origin:location.origin,widget_referrer:location.href},
+    events:{onReady:()=>clearTimeout(readyT),onStateChange:e=>{clearTimeout(readyT);if(e.data===0)step(1);},onError:onVidErr}});
+  readyT=setTimeout(()=>{if(!$('player').hidden)nextHost();},10000);}
+function onVidErr(e){const r=cur;if(!r)return;clearTimeout(readyT);
+  const code=e&&e.data;
+  if((code===152||code===153)&&nextHost())return; // el dominio no sirve: probar el siguiente
+  if(tryIx<(r.w||[]).length){tryIx++;try{yt.loadVideoById(vidOf(r));}catch(_){showErr(r);}}else showErr(r);}
 function playSong(r){
   if(!r||!r.v)return;cur=r;tryIx=0;queue=orderNow();
   const P=$('player');P.hidden=false;P.classList.remove('mini');document.body.classList.remove('pmin');document.body.classList.add('playing');
   $('pt').textContent=r.t;$('pa').textContent=`${r.a} · ${r.y}`;$('pyt').href=ytUrl(r);mark();
   if(apiReady&&window.YT&&YT.Player){
     if(yt&&yt.loadVideoById){yt.loadVideoById(vidOf(r));return;}
-    $('scr').innerHTML='<div id="ytp"></div>';
-    yt=new YT.Player('ytp',{videoId:vidOf(r),playerVars:{autoplay:1,rel:0,playsinline:1},
-      events:{onStateChange:e=>{if(e.data===0)step(1);},onError:onVidErr}});
+    mkPlayer(r);
   } else {
-    yt=null;$('scr').innerHTML=`<iframe src="https://www.youtube.com/embed/${r.v}?autoplay=1&rel=0&playsinline=1" title="${esc(r.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    yt=null;$('scr').innerHTML=`<iframe src="${HOSTS[hostIx]}/embed/${r.v}?autoplay=1&rel=0&playsinline=1" title="${esc(r.t)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   }
 }
 function step(d){if(!cur)return;const q=queue.length?queue:orderNow();let i=q.findIndex(r=>r.o===cur.o);
