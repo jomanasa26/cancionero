@@ -409,7 +409,9 @@ const mmss=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%
 function setMode(m){mode=m;
   $('pmode').setAttribute('aria-pressed',m==='win');$('pmode').title=m==='win'?'Ver aquí adentro':'Abrir en ventana de YouTube al lado';}
 function stopWin(close){clearInterval(tickT);tickT=null;if(close&&pw&&!pw.closed){try{pw.close();}catch(e){}}if(close)pw=null;}
-function openWin(r){
+function setRef(v){let m=document.querySelector('meta[name=referrer]');if(!m){m=document.createElement('meta');m.name='referrer';document.head.appendChild(m);}m.content=v;}
+function openWin(r){setRef('no-referrer');try{return openWin0(r);}finally{setTimeout(()=>setRef('strict-origin-when-cross-origin'),1500);}}
+function openWin0(r){
   const W=Math.min(680,Math.max(420,Math.round(screen.availWidth*0.42))),H=screen.availHeight||800;
   const L=(screen.availLeft||0)+(screen.availWidth||1200)-W,T=screen.availTop||0;
   if(pw&&!pw.closed){try{pw.location.href=winUrl(r);return true;}catch(e){}}
